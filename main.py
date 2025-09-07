@@ -80,7 +80,7 @@ for e in range(episodes):
     # ذخیره checkpoint در اپیزودهای مشخص
     if e in save_episodes:
         print(f"Saving checkpoint at episode {e} ...")
-        mario.save()
+        mario.save(e)
 
     if e % 20 == 0:
         logger.record(
@@ -88,4 +88,3 @@ for e in range(episodes):
             epsilon=mario.exploration_rate,
             step=mario.curr_step
         )
-        
