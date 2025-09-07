@@ -88,3 +88,4 @@ for e in range(episodes):
             epsilon=mario.exploration_rate,
             step=mario.curr_step
         )
+        
