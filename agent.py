@@ -5,7 +5,7 @@ from pathlib import Path
 from neural import MarioNet
 from collections import deque
 
-
+ 
 class Mario:
     def __init__(self, state_dim, action_dim, save_dir, checkpoint=None):
         self.state_dim = state_dim

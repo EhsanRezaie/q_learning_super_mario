@@ -1,6 +1,6 @@
 
 # MadMario
-PyTorch [official tutorial](https://pytorch.org/tutorials/intermediate/mario_rl_tutorial.html) to build an AI-powered Mario.
+PyTorch project to build an AI-powered super Mario agent.
 
 ## Set Up
 1. Install [conda](https://www.anaconda.com/products/individual)
