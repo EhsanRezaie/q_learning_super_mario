@@ -17,8 +17,6 @@ from wrappers import ResizeObservation, SkipFrame
 env = gym_super_mario_bros.make('SuperMarioBros-1-1-v0')
 
 # Limit the action-space to
-#   0. walk right
-#   1. jump right
 env = JoypadSpace(
     env,
     [['right'],
@@ -43,6 +41,7 @@ mario = Mario(state_dim=(4, 84, 84), action_dim=env.action_space.n, save_dir=sav
 logger = MetricLogger(save_dir)
 
 episodes = 40000
+save_episodes = [20, 100, 500, 1000, 5000, 10000, 20000, 40000]  # اپیزودهای checkpoint
 
 ### for Loop that train the model num_episodes times by playing the game
 for e in range(episodes):
@@ -52,32 +51,36 @@ for e in range(episodes):
     # Play the game!
     while True:
 
-        # 3. Show environment (the visual) [WIP]
-        # env.render()
+        # env.render()  # نمایش محیط (اختیاری)
 
-        # 4. Run agent on the state
+        # Run agent on the state
         action = mario.act(state)
 
-        # 5. Agent performs action
+        # Agent performs action
         next_state, reward, done, info = env.step(action)
 
-        # 6. Remember
+        # Remember
         mario.cache(state, next_state, action, reward, done)
 
-        # 7. Learn
+        # Learn
         q, loss = mario.learn()
 
-        # 8. Logging
+        # Logging
         logger.log_step(reward, loss, q)
 
-        # 9. Update state
+        # Update state
         state = next_state
 
-        # 10. Check if end of game
+        # Check if end of game
         if done or info['flag_get']:
             break
 
     logger.log_episode()
+
+    # ذخیره checkpoint در اپیزودهای مشخص
+    if e in save_episodes:
+        print(f"Saving checkpoint at episode {e} ...")
+        mario.save()
 
     if e % 20 == 0:
         logger.record(
