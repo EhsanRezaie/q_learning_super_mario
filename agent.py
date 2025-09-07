@@ -149,8 +149,8 @@ class Mario:
         return (td_est.mean().item(), loss)
 
 
-    def save(self):
-        save_path = self.save_dir / f"mario_net_{int(self.curr_step // self.save_every)}.chkpt"
+    def save(self,episode_number):
+        save_path = self.save_dir / f"mario_net_{int(episode_number)}.chkpt"
         torch.save(
             dict(
                 model=self.net.state_dict(),
