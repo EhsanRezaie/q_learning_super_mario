@@ -12,17 +12,20 @@ from nes_py.wrappers import JoypadSpace
 from metrics import MetricLogger
 from agent import Mario
 from wrappers import ResizeObservation, SkipFrame
+from speed_run_reward import SpeedrunReward
 
 # Initialize Super Mario environment
 env = gym_super_mario_bros.make('SuperMarioBros-1-1-v0')
 
 # Limit the action-space to
+#   0. walk right
+#   1. jump right
 env = JoypadSpace(
     env,
-    [['right'],
-    ['right', 'A']]
+    [['right', 'B'],       # دویدن سریع
+     ['right', 'B', 'A']]  # دویدن + پرش
 )
-
+env = SpeedrunReward(env)
 # Apply Wrappers to environment
 env = SkipFrame(env, skip=4)
 env = GrayScaleObservation(env, keep_dim=False)
@@ -41,7 +44,6 @@ mario = Mario(state_dim=(4, 84, 84), action_dim=env.action_space.n, save_dir=sav
 logger = MetricLogger(save_dir)
 
 episodes = 40000
-save_episodes = [20, 100, 500, 1000, 5000, 10000, 20000, 40000]  # اپیزودهای checkpoint
 
 ### for Loop that train the model num_episodes times by playing the game
 for e in range(episodes):
@@ -51,36 +53,32 @@ for e in range(episodes):
     # Play the game!
     while True:
 
-        # env.render()  # نمایش محیط (اختیاری)
+        # 3. Show environment (the visual) [WIP]
+        # env.render()
 
-        # Run agent on the state
+        # 4. Run agent on the state
         action = mario.act(state)
 
-        # Agent performs action
+        # 5. Agent performs action
         next_state, reward, done, info = env.step(action)
 
-        # Remember
+        # 6. Remember
         mario.cache(state, next_state, action, reward, done)
 
-        # Learn
+        # 7. Learn
         q, loss = mario.learn()
 
-        # Logging
+        # 8. Logging
         logger.log_step(reward, loss, q)
 
-        # Update state
+        # 9. Update state
         state = next_state
 
-        # Check if end of game
+        # 10. Check if end of game
         if done or info['flag_get']:
             break
 
     logger.log_episode()
-
-    # ذخیره checkpoint در اپیزودهای مشخص
-    if e in save_episodes:
-        print(f"Saving checkpoint at episode {e} ...")
-        mario.save(e)
 
     if e % 20 == 0:
         logger.record(

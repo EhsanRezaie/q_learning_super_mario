@@ -5,7 +5,7 @@ from pathlib import Path
 from neural import MarioNet
 from collections import deque
 
- 
+
 class Mario:
     def __init__(self, state_dim, action_dim, save_dir, checkpoint=None):
         self.state_dim = state_dim
@@ -26,7 +26,7 @@ class Mario:
         self.save_every = 5e5   # no. of experiences between saving Mario Net
         self.save_dir = save_dir
 
-        self.use_cuda = torch.cuda.is_available()
+        self.use_cuda = False
 
         # Mario's DNN to predict the most optimal action - we implement this in the Learn section
         self.net = MarioNet(self.state_dim, self.action_dim).float()
@@ -78,11 +78,11 @@ class Mario:
         reward (float),
         done(bool))
         """
-        state = torch.FloatTensor(state)
-        next_state = torch.FloatTensor(next_state)
-        action = torch.LongTensor([action])
-        reward = torch.DoubleTensor([reward])
-        done = torch.BoolTensor([done]).cuda()
+        state = torch.FloatTensor(state).cuda() if self.use_cuda else torch.FloatTensor(state)
+        next_state = torch.FloatTensor(next_state).cuda() if self.use_cuda else torch.FloatTensor(next_state)
+        action = torch.LongTensor([action]).cuda() if self.use_cuda else torch.LongTensor([action])
+        reward = torch.DoubleTensor([reward]).cuda() if self.use_cuda else torch.DoubleTensor([reward])
+        done = torch.BoolTensor([done]).cuda() if self.use_cuda else torch.BoolTensor([done])
 
         self.memory.append( (state, next_state, action, reward, done,) )
 
@@ -93,10 +93,6 @@ class Mario:
         """
         batch = random.sample(self.memory, self.batch_size)
         state, next_state, action, reward, done = map(torch.stack, zip(*batch))
-
-        if self.use_cuda:
-            state, next_state, action, reward, done = state.cuda(), next_state.cuda(), action.cuda(), reward.cuda(), done.cuda()
-            
         return state, next_state, action.squeeze(), reward.squeeze(), done.squeeze()
 
 
@@ -153,8 +149,8 @@ class Mario:
         return (td_est.mean().item(), loss)
 
 
-    def save(self,episode_number):
-        save_path = self.save_dir / f"mario_net_{int(episode_number)}.chkpt"
+    def save(self):
+        save_path = self.save_dir / f"mario_net_{int(self.curr_step // self.save_every)}.chkpt"
         torch.save(
             dict(
                 model=self.net.state_dict(),

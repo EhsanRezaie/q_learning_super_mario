@@ -9,13 +9,13 @@ from nes_py.wrappers import JoypadSpace
 from metrics import MetricLogger
 from agent import Mario
 from wrappers import ResizeObservation, SkipFrame
-
+from speed_run_reward import SpeedrunReward
 env = gym_super_mario_bros.make('SuperMarioBros-1-1-v0')
 
 env = JoypadSpace(
     env,
-    [['right'],
-    ['right', 'A']]
+    [['right', 'B'],       # دویدن سریع
+     ['right', 'B', 'A']]  # دویدن + پرش
 )
 
 env = SkipFrame(env, skip=4)
@@ -23,13 +23,13 @@ env = GrayScaleObservation(env, keep_dim=False)
 env = ResizeObservation(env, shape=84)
 env = TransformObservation(env, f=lambda x: x / 255.)
 env = FrameStack(env, num_stack=4)
-
+env = SpeedrunReward(env)
 env.reset()
 
 save_dir = Path('checkpoints') / datetime.datetime.now().strftime('%Y-%m-%dT%H-%M-%S')
 save_dir.mkdir(parents=True)
 
-checkpoint = Path('checkpoints/2020-10-21T18-25-27/mario.chkpt')
+checkpoint = Path('checkpoints/2025-09-08T13-02-04/mario_net_1000.chkpt')
 mario = Mario(state_dim=(4, 84, 84), action_dim=env.action_space.n, save_dir=save_dir, checkpoint=checkpoint)
 mario.exploration_rate = mario.exploration_rate_min
 

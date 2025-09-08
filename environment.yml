@@ -4,14 +4,9 @@ channels:
 dependencies:
   - ca-certificates=2020.1.1=0
   - certifi=2020.4.5.1=py38_0
-  - libcxx=14
-  - libedit=3.1
-  - libffi=3.3
-  - ncurses=6.2
   - openssl=1.1
   - pip=20.0.2=py38_3
   - python=3.8.3
-  - readline=8.0
   - setuptools=46.4.0=py38_0
   - sqlite=3.31.1
   - tk=8.6.8

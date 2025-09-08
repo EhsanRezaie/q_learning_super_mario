@@ -1,5 +1,6 @@
 from torch import nn
 import copy
+
  
 class MarioNet(nn.Module):
     '''mini cnn structure
